@@ -1,5 +1,7 @@
 # API Operations
-[![Build Status](https://travis-ci.org/springboardretail/api-operations.svg?branch=master)](https://travis-ci.org/springboardretail/api-operations)
+[![Travis][build-badge]][build]
+[![npm package][npm-badge]][npm]
+[![Coveralls][coveralls-badge]][coveralls]
 
 A lightweight (3kb minified) library for simple RESTful API operations that leverages ```fetch```.
 
@@ -277,3 +279,12 @@ get('http://myCoolApi.com/endpoint', {}, { statusValidator, errorParser })
   .then(json => { console.log('got the json:', json) })
   .catch(error => { console.log('got an error:', error) })
 ```
+
+[build-badge]: https://img.shields.io/travis/springboardretail/api-operations/master.svg?style=flat-square
+[build]: https://travis-ci.org/springboardretail/api-operations
+
+[npm-badge]: https://img.shields.io/npm/v/api-operations.svg?style=flat-square
+[npm]: https://www.npmjs.org/package/api-operations
+
+[coveralls-badge]: https://img.shields.io/coveralls/springboardretail/api-operations/master.svg?style=flat-square
+[coveralls]: https://coveralls.io/github/springboardretail/api-operations
