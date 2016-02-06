@@ -68,6 +68,38 @@ describe('apiOperations', () => {
       })
   })
 
+  it('uses passed status validator', () => {
+    const responseData = { ok: true }
+    fetchMock.mock('https://test/customStatus', {
+      status: 1,
+      headers: { 'Content-Type': 'application/json' },
+      body: responseData,
+    })
+    const statusValidator = (status) => status > 0 && status < 100
+
+    return getJson('https://test/customStatus', { credentials: 'same-origin' }, { statusValidator })
+      .then(json => {
+        assert.deepEqual(json, responseData)
+        assert.equal(fetchMock.lastOptions('https://test/customStatus').credentials, 'same-origin')
+      })
+  })
+
+  it('uses passed error parser', () => {
+    fetchMock.mock('https://test/customError', jsonAPIStatusError(400))
+    const errorParser = (error, response) => {
+      const _error = new Error('Custom Error')
+      _error.name = response.statusText
+      return _error
+    }
+
+    return getJson('https://test/customError', { credentials: 'same-origin' }, { errorParser })
+      .catch(error => {
+        assert.equal(error.message, 'Custom Error')
+        assert.equal(error.name, 'Bad Request')
+        assert(fetchMock.called('https://test/customError'))
+      })
+  })
+
   it('throws on error', () => {
     fetchMock.mock('https://test/error', jsonAPIStatusError(400))
 
