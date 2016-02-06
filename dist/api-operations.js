@@ -61,9 +61,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.putJson = exports.postJson = exports.getJson = undefined;
+	exports.patchJson = exports.putJson = exports.postJson = exports.get = undefined;
 	exports.delete_ = delete_;
-	exports.makeUri = makeUri;
 	exports.createApiSource = createApiSource;
 
 	var _fetchStatus = __webpack_require__(1);
@@ -77,21 +76,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * see "Checking that the fetch was successful":
 	 *  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 	 */
-	function safeFetch(url) {
-	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-	  return fetch(url, options).then(_fetchStatus.checkStatus);
+	function safeFetch(url, fetchOptions, operationOptions) {
+	  return fetch(url, fetchOptions).then(function (res) {
+	    return (0, _fetchStatus.checkStatus)(res, operationOptions);
+	  });
 	}
 
 	function fetchAndParse(url) {
-	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	  var fetchOptions = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	  var operationOptions = arguments[2];
 
-	  return safeFetch(url, options).then(_fetchStatus.parseResponse);
+	  return safeFetch(url, fetchOptions, operationOptions).then(_fetchStatus.parseResponse);
 	}
 
-	function sendJson(url, body) {
-	  var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
+	function sendJson(url, body, fetchOptions, operationOptions) {
 	  var sendOptions = {
 	    headers: {
 	      Accept: 'application/json',
@@ -99,72 +97,83 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    body: JSON.stringify(body)
 	  };
-	  return fetchAndParse(url, mergeOptions(sendOptions, options));
+	  return fetchAndParse(url, mergeOptions(sendOptions, fetchOptions), operationOptions);
 	}
 
-	function _getJson(url, body) {
-	  var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-	  return fetchAndParse(url, body, mergeOptions({ method: 'get' }, options));
+	function _get(url, fetchOptions, operationOptions) {
+	  return fetchAndParse(url, mergeOptions({ method: 'get' }, fetchOptions), operationOptions);
 	}
 
-	exports.getJson = _getJson;
-	function _postJson(url, body) {
-	  var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-	  return sendJson(url, body, mergeOptions({ method: 'post' }, options));
+	exports.get = _get;
+	function _postJson(url, body, fetchOptions, operationOptions) {
+	  return sendJson(url, body, mergeOptions({ method: 'post' }, fetchOptions), operationOptions);
 	}
 
 	exports.postJson = _postJson;
-	function _putJson(url, body) {
-	  var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	function _putJson(url, body, fetchOptions, operationOptions) {
+	  return sendJson(url, body, mergeOptions({ method: 'put' }, fetchOptions), operationOptions);
+	}
 
-	  return sendJson(url, body, mergeOptions({ method: 'put' }, options));
+	exports.putJson = _putJson;
+	function _patchJson(url, body, fetchOptions, operationOptions) {
+	  return sendJson(url, body, mergeOptions({ method: 'patch' }, fetchOptions), operationOptions);
 	}
 
 	// using 'delete_' because 'delete' is a reserved keyword
-	exports.putJson = _putJson;
-	function delete_(url) {
-	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-	  return fetchAndParse(url, mergeOptions({ method: 'delete' }, options));
+	exports.patchJson = _patchJson;
+	function delete_(url, fetchOptions, operationOptions) {
+	  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions);
 	}
 
 	function makeUri(baseUrl, endPoint) {
+	  // if endPoint starts with "http://" or "https://" throw an error
+	  if (/^https?:\/\//.test(endPoint)) {
+	    throw new Error('Endpoint seems invalid: "' + endPoint + '"');
+	  }
 	  // Trim ending '/' from baseUrl, and starting one from endPoint
 	  // Hardcode '/' between 'trimmed' baseUrl and endpoint
 	  return baseUrl.replace(/(\/$)/, '') + '/' + endPoint.replace(/(^\/)/, '');
 	}
 
 	// Creates an object with helper methods to query an API point
-	function createApiSource(baseUrl) {
-	  var baseOptions = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
+	function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
 	  return {
-	    getJson: function getJson() {
+	    get: function get() {
 	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-	      var options = arguments[1];
-	      return _getJson(makeUri(baseUrl, endPoint), mergeOptions(baseOptions, options));
+	      var fetchOptions = arguments[1];
+	      var operationOptions = arguments[2];
+	      return _get(makeUri(baseUrl, endPoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    postJson: function postJson() {
 	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var body = arguments[1];
-	      var options = arguments[2];
-	      return _postJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseOptions, options));
+	      var fetchOptions = arguments[2];
+	      var operationOptions = arguments[3];
+	      return _postJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    putJson: function putJson() {
 	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var body = arguments[1];
-	      var options = arguments[2];
-	      return _putJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseOptions, options));
+	      var fetchOptions = arguments[2];
+	      var operationOptions = arguments[3];
+	      return _putJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	    },
+
+	    patchJson: function patchJson() {
+	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var body = arguments[1];
+	      var fetchOptions = arguments[2];
+	      var operationOptions = arguments[3];
+	      return _patchJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    delete: function _delete() {
 	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-	      var options = arguments[1];
-	      return delete_(makeUri(baseUrl, endPoint), mergeOptions(baseOptions, options));
+	      var fetchOptions = arguments[1];
+	      var operationOptions = arguments[2];
+	      return delete_(makeUri(baseUrl, endPoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    }
 	  };
 	}
@@ -186,11 +195,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @note best used in a fetch promises chain, where an error can be easily caught.
 	 */
 	function checkStatus(response) {
-	  if (response.status >= 200 && response.status < 300) {
+	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	  var statusValidator = returnIfFunctionExists(options.statusValidator);
+	  var errorParser = returnIfFunctionExists(options.errorParser);
+
+	  var isValidRange = statusValidator ? statusValidator(response.status) : response.status >= 200 && response.status < 300;
+
+	  if (isValidRange) {
 	    return response;
 	  }
+
 	  return parseResponse(response).then(function (error) {
-	    throw parseError(error, response);
+	    throw parseError(error, response, errorParser);
 	  });
 	}
 
@@ -201,12 +218,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return response.text();
 	}
 
-	function parseError(error, response) {
+	function parseError(error, response, errorParser) {
 	  var _error = new Error(error.message || response.statusText);
 	  _error.name = error.error || response.status;
 	  _error.response = response;
 	  _error.body = error;
-	  return _error;
+	  return errorParser ? errorParser(error, response) : _error;
+	}
+
+	function returnIfFunctionExists(object) {
+	  var isFunction = function isFunction(obj) {
+	    return {}.toString.call(obj) === '[object Function]';
+	  };
+	  if ((object !== undefined || object !== null) && isFunction(object)) {
+	    return object;
+	  }
+	  return false;
 	}
 
 /***/ },

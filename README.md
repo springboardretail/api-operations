@@ -1,6 +1,6 @@
 # API Operations
 
-A lightweight (2kb minified) library for simple RESTful API operations that leverages ```fetch```.
+A lightweight (3kb minified) library for simple RESTful API operations that leverages ```fetch```.
 
 
 # Features
