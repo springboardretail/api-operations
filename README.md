@@ -1,4 +1,5 @@
 # API Operations
+[![Build Status](https://travis-ci.org/springboardretail/api-operations.svg?branch=master)](https://travis-ci.org/springboardretail/api-operations)
 
 A lightweight (3kb minified) library for simple RESTful API operations that leverages ```fetch```.
 
@@ -45,7 +46,7 @@ The library namespace is ```apiOperations```
 # Getting started
 
 ```js
-import { get, postJson, putJson, delete_, createApiSource } from 'api-operations'
+import { get, postJson, createApiSource } from 'api-operations'
 
 // Simple get json from url
 get('http://myCoolApi.com/endpoint')
