@@ -30,7 +30,7 @@ function parseError(error, response, errorParser) {
 }
 
 function returnIfFunctionExists(object) {
-  const isFunction = object => ({}.toString.call(object) === '[object Function]')
+  const isFunction = obj => ({}.toString.call(obj) === '[object Function]')
   if ((object !== undefined || object !== null) && isFunction(object)) { return object }
   return false
 }

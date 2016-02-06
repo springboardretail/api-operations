@@ -1,7 +1,7 @@
 import { assert } from 'chai'
 import fetchMock from 'fetch-mock'
-import { getJson, postJson, putJson, delete_, createApiSource } from '../apiOperations'
-import { jsonAPIResponse, jsonAPIStatusError } from './fetch-mock-helpers'
+import { get, postJson, putJson, patchJson, delete_, createApiSource } from '../apiOperations'
+import { jsonAPIResponse, jsonAPIStatusError, assertCalled } from './fetch-mock-helpers'
 
 const testAPISource = createApiSource('https://test', { credentials: 'same-origin' })
 
@@ -13,10 +13,10 @@ describe('apiOperations', () => {
     const responseData = { ok: true }
     fetchMock.mock('https://test/get', jsonAPIResponse(responseData))
 
-    return getJson('https://test/get')
+    return get('https://test/get')
       .then(json => {
         assert.deepEqual(json, responseData)
-        assert(fetchMock.called('https://test/get'))
+        assertCalled('https://test/get')
       })
   })
 
@@ -28,7 +28,7 @@ describe('apiOperations', () => {
     return postJson('https://test/post', sentData)
       .then(json => {
         assert.deepEqual(json, responseData)
-        assert(fetchMock.called('https://test/post'))
+        assertCalled('https://test/post')
         assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/post').body), sentData)
       })
   })
@@ -41,8 +41,21 @@ describe('apiOperations', () => {
     return putJson('https://test/put', sentData)
       .then(json => {
         assert.deepEqual(json, responseData)
-        assert(fetchMock.called('https://test/put'))
+        assertCalled('https://test/put')
         assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/put').body), sentData)
+      })
+  })
+
+  it('patches json', () => {
+    const responseData = { ok: true }
+    const sentData = { sent: true }
+    fetchMock.mock('https://test/patch', 'PATCH', jsonAPIResponse(responseData))
+
+    return patchJson('https://test/patch', sentData)
+      .then(json => {
+        assert.deepEqual(json, responseData)
+        assertCalled('https://test/patch')
+        assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patch').body), sentData)
       })
   })
 
@@ -53,7 +66,7 @@ describe('apiOperations', () => {
     return delete_('https://test/delete')
       .then(json => {
         assert.deepEqual(json, responseData)
-        assert(fetchMock.called('https://test/delete'))
+        assertCalled('https://test/delete')
       })
   })
 
@@ -61,7 +74,7 @@ describe('apiOperations', () => {
     const responseData = { ok: true }
     fetchMock.mock('https://test/credentials', jsonAPIResponse(responseData))
 
-    return getJson('https://test/credentials', { credentials: 'same-origin' })
+    return get('https://test/credentials', { credentials: 'same-origin' })
       .then(json => {
         assert.deepEqual(json, responseData)
         assert.equal(fetchMock.lastOptions('https://test/credentials').credentials, 'same-origin')
@@ -77,10 +90,10 @@ describe('apiOperations', () => {
     })
     const statusValidator = (status) => status > 0 && status < 100
 
-    return getJson('https://test/customStatus', { credentials: 'same-origin' }, { statusValidator })
+    return get('https://test/customStatus', {}, { statusValidator })
       .then(json => {
         assert.deepEqual(json, responseData)
-        assert.equal(fetchMock.lastOptions('https://test/customStatus').credentials, 'same-origin')
+        assertCalled('https://test/customStatus')
       })
   })
 
@@ -92,21 +105,21 @@ describe('apiOperations', () => {
       return _error
     }
 
-    return getJson('https://test/customError', { credentials: 'same-origin' }, { errorParser })
+    return get('https://test/customError', {}, { errorParser })
       .catch(error => {
         assert.equal(error.message, 'Custom Error')
         assert.equal(error.name, 'Bad Request')
-        assert(fetchMock.called('https://test/customError'))
+        assertCalled('https://test/customError')
       })
   })
 
   it('throws on error', () => {
     fetchMock.mock('https://test/error', jsonAPIStatusError(400))
 
-    return getJson('https://test/error')
+    return get('https://test/error')
       .catch(error => {
         assert.equal(error.message, 'Status 400')
-        assert(fetchMock.called('https://test/error'))
+        assertCalled('https://test/error')
       })
   })
 
@@ -116,10 +129,10 @@ describe('apiOperations', () => {
       const responseData = { ok: true }
       fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
 
-      return testAPISource.getJson('getEndpoint')
+      return testAPISource.get('getEndpoint')
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert(fetchMock.called('https://test/getEndpoint'))
+          assertCalled('https://test/getEndpoint')
         })
     })
 
@@ -131,7 +144,7 @@ describe('apiOperations', () => {
       return testAPISource.postJson('postEndpoint', sentData)
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert(fetchMock.called('https://test/postEndpoint'))
+          assertCalled('https://test/postEndpoint')
           assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/postEndpoint').body), sentData)
         })
     })
@@ -144,8 +157,21 @@ describe('apiOperations', () => {
       return testAPISource.putJson('putEndpoint', sentData)
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert(fetchMock.called('https://test/putEndpoint'))
+          assertCalled('https://test/putEndpoint')
           assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/putEndpoint').body), sentData)
+        })
+    })
+
+    it('patches json', () => {
+      const responseData = { ok: true }
+      const sentData = { sent: true }
+      fetchMock.mock('https://test/patchEndpoint', 'PATCH', jsonAPIResponse(responseData))
+
+      return testAPISource.patchJson('patchEndpoint', sentData)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/patchEndpoint')
+          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patchEndpoint').body), sentData)
         })
     })
 
@@ -156,17 +182,17 @@ describe('apiOperations', () => {
       return testAPISource.delete('deleteEndpoint')
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert(fetchMock.called('https://test/deleteEndpoint'))
+          assertCalled('https://test/deleteEndpoint')
         })
     })
 
     it('throws on error', () => {
       fetchMock.mock('https://test/errorEndpoint', jsonAPIStatusError(400))
 
-      return testAPISource.getJson('errorEndpoint')
+      return testAPISource.get('errorEndpoint')
         .catch(error => {
           assert.equal(error.message, 'Status 400')
-          assert(fetchMock.called('https://test/errorEndpoint'))
+          assertCalled('https://test/errorEndpoint')
         })
     })
 
@@ -174,21 +200,21 @@ describe('apiOperations', () => {
       const responseData = { ok: true }
       fetchMock.mock('https://test/', jsonAPIResponse(responseData))
 
-      return testAPISource.getJson()
+      return testAPISource.get()
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert(fetchMock.called('https://test/'))
+          assertCalled('https://test/')
         })
     })
 
     it('uses baseOptions', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/credentials', jsonAPIResponse(responseData))
+      fetchMock.mock('https://test/baseoptions', jsonAPIResponse(responseData))
 
-      return testAPISource.getJson('credentials')
+      return testAPISource.get('baseoptions')
         .then(json => {
           assert.deepEqual(json, responseData)
-          assert.equal(fetchMock.lastOptions('https://test/credentials').credentials, 'same-origin')
+          assert.equal(fetchMock.lastOptions('https://test/baseoptions').credentials, 'same-origin')
         })
     })
 
@@ -198,10 +224,10 @@ describe('apiOperations', () => {
         const responseData = { ok: true }
         fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
 
-        return testAPISource.getJson('/getEndpoint')
+        return testAPISource.get('/getEndpoint')
           .then(json => {
             assert.deepEqual(json, responseData)
-            assert(fetchMock.called('https://test/getEndpoint'))
+            assertCalled('https://test/getEndpoint')
           })
       })
 
@@ -210,10 +236,10 @@ describe('apiOperations', () => {
         fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return createApiSource('https://test/')
-          .getJson('getEndpoint')
+          .get('getEndpoint')
           .then(json => {
             assert.deepEqual(json, responseData)
-            assert(fetchMock.called('https://test/getEndpoint'))
+            assertCalled('https://test/getEndpoint')
           })
       })
 
@@ -222,17 +248,17 @@ describe('apiOperations', () => {
         fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return createApiSource('https://test/')
-          .getJson('/getEndpoint')
+          .get('/getEndpoint')
           .then(json => {
             assert.deepEqual(json, responseData)
-            assert(fetchMock.called('https://test/getEndpoint'))
+            assertCalled('https://test/getEndpoint')
           })
       })
 
       it('throws on invalid endPoint', () => {
         const responseData = { ok: true }
         fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
-        const invalidEndpoint = () => createApiSource('https://test/').getJson('https://invalidEndpoint')
+        const invalidEndpoint = () => createApiSource('https://test/').get('https://invalidEndpoint')
 
         assert.throws(invalidEndpoint, /Endpoint seems invalid/)
       })

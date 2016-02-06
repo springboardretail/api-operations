@@ -7,7 +7,7 @@ const mergeOptions = (opts1, opts2) => Object.assign({}, opts1, opts2)
  * see "Checking that the fetch was successful":
  *  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
  */
-function safeFetch(url, fetchOptions = {}, operationOptions) {
+function safeFetch(url, fetchOptions, operationOptions) {
   return fetch(url, fetchOptions)
     .then(res => checkStatus(res, operationOptions))
 }
@@ -19,7 +19,7 @@ function fetchAndParse(url, fetchOptions = {}, operationOptions) {
 }
 
 
-function sendJson(url, body, fetchOptions = {}, operationOptions) {
+function sendJson(url, body, fetchOptions, operationOptions) {
   const sendOptions = {
     headers: {
       Accept: 'application/json',
@@ -31,23 +31,28 @@ function sendJson(url, body, fetchOptions = {}, operationOptions) {
 }
 
 
-export function getJson(url, fetchOptions = {}, operationOptions) {
+export function get(url, fetchOptions, operationOptions) {
   return fetchAndParse(url, mergeOptions({ method: 'get' }, fetchOptions), operationOptions)
 }
 
 
-export function postJson(url, body, fetchOptions = {}, operationOptions) {
+export function postJson(url, body, fetchOptions, operationOptions) {
   return sendJson(url, body, mergeOptions({ method: 'post' }, fetchOptions), operationOptions)
 }
 
 
-export function putJson(url, body, fetchOptions = {}, operationOptions) {
+export function putJson(url, body, fetchOptions, operationOptions) {
   return sendJson(url, body, mergeOptions({ method: 'put' }, fetchOptions), operationOptions)
 }
 
 
+export function patchJson(url, body, fetchOptions, operationOptions) {
+  return sendJson(url, body, mergeOptions({ method: 'patch' }, fetchOptions), operationOptions)
+}
+
+
 // using 'delete_' because 'delete' is a reserved keyword
-export function delete_(url, fetchOptions = {}, operationOptions) {
+export function delete_(url, fetchOptions, operationOptions) {
   return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions)
 }
 
@@ -62,10 +67,10 @@ function makeUri(baseUrl, endPoint) {
 
 
 // Creates an object with helper methods to query an API point
-export function createApiSource(baseUrl, baseFetchOptions = {}, baseOperationOptions) {
+export function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
   return {
-    getJson: (endPoint = '', fetchOptions, operationOptions) =>
-      getJson(makeUri(baseUrl, endPoint),
+    get: (endPoint = '', fetchOptions, operationOptions) =>
+      get(makeUri(baseUrl, endPoint),
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
@@ -78,6 +83,12 @@ export function createApiSource(baseUrl, baseFetchOptions = {}, baseOperationOpt
 
     putJson: (endPoint = '', body, fetchOptions, operationOptions) =>
       putJson(makeUri(baseUrl, endPoint), body,
+        mergeOptions(baseFetchOptions, fetchOptions),
+        mergeOptions(baseOperationOptions, operationOptions)
+      ),
+
+    patchJson: (endPoint = '', body, fetchOptions, operationOptions) =>
+      patchJson(makeUri(baseUrl, endPoint), body,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
