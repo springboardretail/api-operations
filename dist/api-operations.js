@@ -245,14 +245,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.createApiSource = exports.delete_ = exports.patchJson = exports.putJson = exports.postJson = exports.get = undefined;
 
 	var _apiOperations = __webpack_require__(0);
 
-	var _apiOperations2 = _interopRequireDefault(_apiOperations);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _apiOperations2.default; // just an exporter for the modules
+	exports.get = _apiOperations.get;
+	exports.postJson = _apiOperations.postJson;
+	exports.putJson = _apiOperations.putJson;
+	exports.patchJson = _apiOperations.patchJson;
+	exports.delete_ = _apiOperations.delete_;
+	exports.createApiSource = _apiOperations.createApiSource; // just an exporter for the modules
+	// here we can control the default external API of the package
 
 /***/ }
 /******/ ])

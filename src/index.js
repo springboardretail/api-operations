@@ -1,4 +1,4 @@
 // just an exporter for the modules
-import apiOperations from './apiOperations'
-
-export default apiOperations
+// here we can control the default external API of the package
+import { get, postJson, putJson, patchJson, delete_, createApiSource } from './apiOperations'
+export { get, postJson, putJson, patchJson, delete_, createApiSource }

@@ -14,7 +14,7 @@
     "clean": "rimraf lib dist",
     "lint": "eslint src",
     "prepublish": "npm run clean && npm run build",
-    "test": "npm run lint && mocha --compilers js:babel-register --reporter spec 'src/**/__tests__/*-test.js'",
+    "test": "mocha --compilers js:babel-register --reporter spec 'src/**/__tests__/*-test.js'",
     "test:watch": "npm test -- --watch"
   },
   "files": [
