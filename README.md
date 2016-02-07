@@ -69,8 +69,8 @@ myAPISource.get('someEndpoint')
   .then(json => { console.log('got the json:', json) })
   .catch(error => { console.log('got an error:', error) })
 
-// Post to 'http://myCoolApi.com/resource/someOtherEndpoint'
-myAPISource.postJson('someOtherEndpoint', { myData: 'omgBbqWtfKawaii' })
+// Put to 'http://myCoolApi.com/resource/someOtherEndpoint'
+myAPISource.putJson('someOtherEndpoint', { myData: 'omgBbqWtfKawaii' })
   .then(json => { console.log('posted and got json:', json) })
   .catch(error => { console.log('posted and got error:', error) })
 
@@ -189,7 +189,7 @@ Returns an object with the following endpoint methods:
 - postJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - putJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - patchJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
-- delete_ ```(endPoint[, fetchOptions[, operationOptionsions]])```
+- delete ```(endPoint[, fetchOptions[, operationOptionsions]])```
 
 **All endpoint method options get merged with the base options created by ```createApiSource```**
 
