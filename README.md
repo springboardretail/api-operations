@@ -258,7 +258,8 @@ this is the place to set headers, body, and other request data. Example:
 An ```object``` that modifies the operations default behavior. The following key/values are supported:
 - statusValidator ```(response_status)```: A ```function``` that receives the response status code,
 implements some custom validation and returns ```true``` for valid statuses and ```false``` for invalid ones   
-- errorParser ```(error, response)```: A ```function``` that receives the parsed rejected response (error) and the raw response object
+- errorParser ```(error, response)```: A ```function``` that receives the parsed rejected response (error),
+the raw response object and returns an error response
 
 ```js
 // A custom status validator that passes on status 0 to 100 and fails on everything else
