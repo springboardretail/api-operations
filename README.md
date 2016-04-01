@@ -84,6 +84,7 @@ myAPISource.get()
 # API
 - [Methods:](#methods)
   - [get](#get-url-fetchoptions-operationoptions) ```(url[, fetchOptions[, operationOptions]])```
+  - [getQuery](#getquery-url-fetchoptions-operationoptions) ```(url, query,[, fetchOptions[, operationOptions]])```
   - [postJson](#postjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [putJson](#putjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [patchJson](#patchjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
@@ -109,6 +110,36 @@ Gets a document using the 'get' HTTP method and returns a promise with a parsed 
 
 ```js
 get('http://myCoolApi.com/endpoint',
+  { credentials: 'same-origin' },
+  { statusValidator, errorParser })
+  .then(json => { console.log('got the json:', json) })
+  .catch(error => { console.log('got an error:', error) })
+```
+
+---
+
+### getQuery ```(url, query[, fetchOptions[, operationOptions]])```
+
+Parses query object and gets a document using the 'get' HTTP method and returns a promise with a parsed result.
+This utility method is useful when you have complex query params that you don't want to just hardcore in the url
+Example:
+
+```js
+// gets http://myCoolApi.com/endpoint?page=6&active=true
+getQuery('http://myCoolApi.com/endpoint',
+  { page: 6, active: true }
+  { credentials: 'same-origin' },
+  { statusValidator, errorParser })
+  .then(json => { console.log('got the json:', json) })
+  .catch(error => { console.log('got an error:', error) })
+```
+
+You can also append query params to the url if that's your thing
+
+```js
+// gets http://myCoolApi.com/endpoint?foo=bar&page=6&active=true
+getQuery('http://myCoolApi.com/endpoint?foo=bar',
+  { page: 6, active: true }
   { credentials: 'same-origin' },
   { statusValidator, errorParser })
   .then(json => { console.log('got the json:', json) })
@@ -186,6 +217,7 @@ Creates an 'API source' which acts as a base URL and base configurations for ope
 Returns an object with the following endpoint methods:
 
 - get ```(endPoint[, fetchOptions[, operationOptions]])```
+- getQuery ```(endPoint, query[, fetchOptions[, operationOptions]])```
 - postJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - putJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - patchJson ```(endPoint, body[, fetchOptions[, operationOptions]])```

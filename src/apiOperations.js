@@ -1,4 +1,5 @@
 import { checkStatus, parseResponse } from './fetchStatus'
+import { stringify } from 'querystring'
 
 const mergeOptions = (opts1, opts2) => Object.assign({}, opts1, opts2)
 
@@ -33,6 +34,16 @@ function sendJson(url, body, fetchOptions, operationOptions) {
 
 export function get(url, fetchOptions, operationOptions) {
   return fetchAndParse(url, mergeOptions({ method: 'get' }, fetchOptions), operationOptions)
+}
+
+
+export function getQuery(url, query, fetchOptions, operationOptions) {
+  const hasQuery = uri => /\?/.test(uri)
+  return get(
+    `${url}${hasQuery(url) ? '&' : '?'}${stringify(query)}`,
+    fetchOptions,
+    operationOptions
+  )
 }
 
 
@@ -71,6 +82,13 @@ export function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions)
   return {
     get: (endPoint = '', fetchOptions, operationOptions) =>
       get(makeUri(baseUrl, endPoint),
+        mergeOptions(baseFetchOptions, fetchOptions),
+        mergeOptions(baseOperationOptions, operationOptions)
+      ),
+
+    getQuery: (endPoint = '', query, fetchOptions, operationOptions) =>
+      getQuery(makeUri(baseUrl, endPoint),
+        query,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),

@@ -1,6 +1,7 @@
 import { assert } from 'chai'
 import fetchMock from 'fetch-mock'
-import { get, postJson, putJson, patchJson, delete_, createApiSource } from '../apiOperations'
+import { get, getQuery, postJson,
+        putJson, patchJson, delete_, createApiSource } from '../apiOperations'
 import { jsonAPIResponse, jsonAPIStatusError, assertCalled } from './fetch-mock-helpers'
 
 const testAPISource = createApiSource('https://test', { credentials: 'same-origin' })
@@ -9,65 +10,107 @@ const testAPISource = createApiSource('https://test', { credentials: 'same-origi
 describe('apiOperations', () => {
   afterEach(() => fetchMock.restore())
 
-  it('gets json', () => {
-    const responseData = { ok: true }
-    fetchMock.mock('https://test/get', jsonAPIResponse(responseData))
+  describe('#get', () => {
+    it('gets json', () => {
+      const responseData = { ok: true }
+      fetchMock.mock('https://test/get', jsonAPIResponse(responseData))
 
-    return get('https://test/get')
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/get')
-      })
+      return get('https://test/get')
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/get')
+        })
+    })
   })
 
-  it('posts json', () => {
-    const responseData = { ok: true }
-    const sentData = { sent: true }
-    fetchMock.mock('https://test/post', 'POST', jsonAPIResponse(responseData))
+  describe('#getQuery', () => {
+    it('gets json', () => {
+      const responseData = { ok: true }
+      fetchMock.mock('https://test/getQuery?foo=bar&bar=baz', jsonAPIResponse(responseData))
+      const query = {
+        foo: 'bar',
+        bar: 'baz',
+      }
 
-    return postJson('https://test/post', sentData)
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/post')
-        assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/post').body), sentData)
-      })
+      return getQuery('https://test/getQuery', query)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/getQuery?foo=bar&bar=baz')
+        })
+    })
+
+    it('appends query params to url query params', () => {
+      const responseData = { ok: true }
+      fetchMock.mock('https://test/getQuery?a=b&foo=bar&bar=baz', jsonAPIResponse(responseData))
+      const query = {
+        foo: 'bar',
+        bar: 'baz',
+      }
+
+      return getQuery('https://test/getQuery?a=b', query)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/getQuery?a=b&foo=bar&bar=baz')
+        })
+    })
   })
 
-  it('puts json', () => {
-    const responseData = { ok: true }
-    const sentData = { sent: true }
-    fetchMock.mock('https://test/put', 'PUT', jsonAPIResponse(responseData))
+  describe('#post', () => {
+    it('posts json', () => {
+      const responseData = { ok: true }
+      const sentData = { sent: true }
+      fetchMock.mock('https://test/post', 'POST', jsonAPIResponse(responseData))
 
-    return putJson('https://test/put', sentData)
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/put')
-        assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/put').body), sentData)
-      })
+      return postJson('https://test/post', sentData)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/post')
+          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/post').body), sentData)
+        })
+    })
   })
 
-  it('patches json', () => {
-    const responseData = { ok: true }
-    const sentData = { sent: true }
-    fetchMock.mock('https://test/patch', 'PATCH', jsonAPIResponse(responseData))
+  describe('#put', () => {
+    it('puts json', () => {
+      const responseData = { ok: true }
+      const sentData = { sent: true }
+      fetchMock.mock('https://test/put', 'PUT', jsonAPIResponse(responseData))
 
-    return patchJson('https://test/patch', sentData)
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/patch')
-        assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patch').body), sentData)
-      })
+      return putJson('https://test/put', sentData)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/put')
+          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/put').body), sentData)
+        })
+    })
   })
 
-  it('deletes json', () => {
-    const responseData = { ok: true }
-    fetchMock.mock('https://test/delete', 'DELETE', jsonAPIResponse(responseData))
+  describe('#patch', () => {
+    it('patches json', () => {
+      const responseData = { ok: true }
+      const sentData = { sent: true }
+      fetchMock.mock('https://test/patch', 'PATCH', jsonAPIResponse(responseData))
 
-    return delete_('https://test/delete')
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/delete')
-      })
+      return patchJson('https://test/patch', sentData)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/patch')
+          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patch').body), sentData)
+        })
+    })
+  })
+
+  describe('#delete_', () => {
+    it('deletes json', () => {
+      const responseData = { ok: true }
+      fetchMock.mock('https://test/delete', 'DELETE', jsonAPIResponse(responseData))
+
+      return delete_('https://test/delete')
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/delete')
+        })
+    })
   })
 
   it('uses passed options', () => {
@@ -124,66 +167,93 @@ describe('apiOperations', () => {
   })
 
 
-  describe('createApiSource', () => {
-    it('gets json', () => {
-      const responseData = { ok: true }
-      fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+  describe('#createApiSource', () => {
+    describe('#get', () => {
+      it('gets json', () => {
+        const responseData = { ok: true }
+        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
 
-      return testAPISource.get('getEndpoint')
-        .then(json => {
-          assert.deepEqual(json, responseData)
-          assertCalled('https://test/getEndpoint')
-        })
+        return testAPISource.get('getEndpoint')
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/getEndpoint')
+          })
+      })
     })
 
-    it('posts json', () => {
-      const responseData = { ok: true }
-      const sentData = { sent: true }
-      fetchMock.mock('https://test/postEndpoint', 'POST', jsonAPIResponse(responseData))
+    describe('#getQuery', () => {
+      it('gets json', () => {
+        const responseData = { ok: true }
+        fetchMock.mock('https://test/getQueryEndpoint?foo=bar&bar=baz', jsonAPIResponse(responseData))
+        const query = {
+          foo: 'bar',
+          bar: 'baz',
+        }
 
-      return testAPISource.postJson('postEndpoint', sentData)
-        .then(json => {
-          assert.deepEqual(json, responseData)
-          assertCalled('https://test/postEndpoint')
-          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/postEndpoint').body), sentData)
-        })
+        return testAPISource.getQuery('getQueryEndpoint', query)
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/getQueryEndpoint?foo=bar&bar=baz')
+          })
+      })
     })
 
-    it('puts json', () => {
-      const responseData = { ok: true }
-      const sentData = { sent: true }
-      fetchMock.mock('https://test/putEndpoint', 'PUT', jsonAPIResponse(responseData))
+    describe('#post', () => {
+      it('posts json', () => {
+        const responseData = { ok: true }
+        const sentData = { sent: true }
+        fetchMock.mock('https://test/postEndpoint', 'POST', jsonAPIResponse(responseData))
 
-      return testAPISource.putJson('putEndpoint', sentData)
-        .then(json => {
-          assert.deepEqual(json, responseData)
-          assertCalled('https://test/putEndpoint')
-          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/putEndpoint').body), sentData)
-        })
+        return testAPISource.postJson('postEndpoint', sentData)
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/postEndpoint')
+            assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/postEndpoint').body), sentData)
+          })
+      })
     })
 
-    it('patches json', () => {
-      const responseData = { ok: true }
-      const sentData = { sent: true }
-      fetchMock.mock('https://test/patchEndpoint', 'PATCH', jsonAPIResponse(responseData))
+    describe('#put', () => {
+      it('puts json', () => {
+        const responseData = { ok: true }
+        const sentData = { sent: true }
+        fetchMock.mock('https://test/putEndpoint', 'PUT', jsonAPIResponse(responseData))
 
-      return testAPISource.patchJson('patchEndpoint', sentData)
-        .then(json => {
-          assert.deepEqual(json, responseData)
-          assertCalled('https://test/patchEndpoint')
-          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patchEndpoint').body), sentData)
-        })
+        return testAPISource.putJson('putEndpoint', sentData)
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/putEndpoint')
+            assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/putEndpoint').body), sentData)
+          })
+      })
     })
 
-    it('deletes json', () => {
-      const responseData = { ok: true }
-      fetchMock.mock('https://test/deleteEndpoint', 'DELETE', jsonAPIResponse(responseData))
+    describe('#patch', () => {
+      it('patches json', () => {
+        const responseData = { ok: true }
+        const sentData = { sent: true }
+        fetchMock.mock('https://test/patchEndpoint', 'PATCH', jsonAPIResponse(responseData))
 
-      return testAPISource.delete('deleteEndpoint')
-        .then(json => {
-          assert.deepEqual(json, responseData)
-          assertCalled('https://test/deleteEndpoint')
-        })
+        return testAPISource.patchJson('patchEndpoint', sentData)
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/patchEndpoint')
+            assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/patchEndpoint').body), sentData)
+          })
+      })
+    })
+
+    describe('#delete', () => {
+      it('deletes json', () => {
+        const responseData = { ok: true }
+        fetchMock.mock('https://test/deleteEndpoint', 'DELETE', jsonAPIResponse(responseData))
+
+        return testAPISource.delete('deleteEndpoint')
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/deleteEndpoint')
+          })
+      })
     })
 
     it('throws on error', () => {
