@@ -84,7 +84,7 @@ myAPISource.get()
 # API
 - [Methods:](#methods)
   - [get](#get-url-fetchoptions-operationoptions) ```(url[, fetchOptions[, operationOptions]])```
-  - [getQuery](#getquery-url-fetchoptions-operationoptions) ```(url, query,[, fetchOptions[, operationOptions]])```
+  - [getQuery](#getquery-url-query-fetchoptions-operationoptions) ```(url, query,[, fetchOptions[, operationOptions]])```
   - [postJson](#postjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [putJson](#putjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [patchJson](#patchjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
