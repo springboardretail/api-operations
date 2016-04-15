@@ -325,12 +325,20 @@ describe('apiOperations', () => {
           })
       })
 
-      it('throws on invalid endPoint', () => {
+      it('throws on invalid endpoint', () => {
         const responseData = { ok: true }
         fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
         const invalidEndpoint = () => createApiSource('https://test/').get('https://invalidEndpoint')
 
         assert.throws(invalidEndpoint, /Endpoint seems invalid/)
+      })
+
+      it('allows numeric endpoint', () => {
+        const responseData = { ok: true }
+        fetchMock.mock('https://test/123', jsonAPIResponse(responseData))
+        const endpoint = () => createApiSource('https://test/').get(123)
+
+        assert.doesNotThrow(endpoint)
       })
     })
   })

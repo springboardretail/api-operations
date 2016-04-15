@@ -136,63 +136,63 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions);
 	}
 
-	function makeUri(baseUrl, endPoint) {
-	  // if endPoint starts with "http://" or "https://" throw an error
-	  if (/^https?:\/\//.test(endPoint)) {
-	    throw new Error('Endpoint seems invalid: "' + endPoint + '"');
+	function makeUri(baseUrl, endpoint) {
+	  // if endpoint starts with "http://" or "https://" throw an error
+	  if (/^https?:\/\//.test(endpoint)) {
+	    throw new Error('Endpoint seems invalid: "' + endpoint + '"');
 	  }
-	  // Trim ending '/' from baseUrl, and starting one from endPoint
+	  // Trim ending '/' from baseUrl, and starting one from endpoint
 	  // Hardcode '/' between 'trimmed' baseUrl and endpoint
-	  return baseUrl.replace(/(\/$)/, '') + '/' + endPoint.replace(/(^\/)/, '');
+	  return baseUrl.replace(/(\/$)/, '') + '/' + endpoint.toString().replace(/(^\/)/, '');
 	}
 
 	// Creates an object with helper methods to query an API point
 	function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
 	  return {
 	    get: function get() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var fetchOptions = arguments[1];
 	      var operationOptions = arguments[2];
-	      return _get(makeUri(baseUrl, endPoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return _get(makeUri(baseUrl, endpoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    getQuery: function getQuery() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var query = arguments[1];
 	      var fetchOptions = arguments[2];
 	      var operationOptions = arguments[3];
-	      return _getQuery(makeUri(baseUrl, endPoint), query, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return _getQuery(makeUri(baseUrl, endpoint), query, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    postJson: function postJson() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var body = arguments[1];
 	      var fetchOptions = arguments[2];
 	      var operationOptions = arguments[3];
-	      return _postJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return _postJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    putJson: function putJson() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var body = arguments[1];
 	      var fetchOptions = arguments[2];
 	      var operationOptions = arguments[3];
-	      return _putJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return _putJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    patchJson: function patchJson() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var body = arguments[1];
 	      var fetchOptions = arguments[2];
 	      var operationOptions = arguments[3];
-	      return _patchJson(makeUri(baseUrl, endPoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return _patchJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    },
 
 	    delete: function _delete() {
-	      var endPoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+	      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 	      var fetchOptions = arguments[1];
 	      var operationOptions = arguments[2];
-	      return delete_(makeUri(baseUrl, endPoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+	      return delete_(makeUri(baseUrl, endpoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
 	    }
 	  };
 	}

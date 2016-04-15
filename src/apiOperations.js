@@ -68,51 +68,51 @@ export function delete_(url, fetchOptions, operationOptions) {
 }
 
 
-function makeUri(baseUrl, endPoint) {
-  // if endPoint starts with "http://" or "https://" throw an error
-  if (/^https?:\/\//.test(endPoint)) { throw new Error(`Endpoint seems invalid: "${endPoint}"`) }
-  // Trim ending '/' from baseUrl, and starting one from endPoint
+function makeUri(baseUrl, endpoint) {
+  // if endpoint starts with "http://" or "https://" throw an error
+  if (/^https?:\/\//.test(endpoint)) { throw new Error(`Endpoint seems invalid: "${endpoint}"`) }
+  // Trim ending '/' from baseUrl, and starting one from endpoint
   // Hardcode '/' between 'trimmed' baseUrl and endpoint
-  return `${baseUrl.replace(/(\/$)/, '')}/${endPoint.replace(/(^\/)/, '')}`
+  return `${baseUrl.replace(/(\/$)/, '')}/${endpoint.toString().replace(/(^\/)/, '')}`
 }
 
 
 // Creates an object with helper methods to query an API point
 export function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
   return {
-    get: (endPoint = '', fetchOptions, operationOptions) =>
-      get(makeUri(baseUrl, endPoint),
+    get: (endpoint = '', fetchOptions, operationOptions) =>
+      get(makeUri(baseUrl, endpoint),
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    getQuery: (endPoint = '', query, fetchOptions, operationOptions) =>
-      getQuery(makeUri(baseUrl, endPoint),
+    getQuery: (endpoint = '', query, fetchOptions, operationOptions) =>
+      getQuery(makeUri(baseUrl, endpoint),
         query,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    postJson: (endPoint = '', body, fetchOptions, operationOptions) =>
-      postJson(makeUri(baseUrl, endPoint), body,
+    postJson: (endpoint = '', body, fetchOptions, operationOptions) =>
+      postJson(makeUri(baseUrl, endpoint), body,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    putJson: (endPoint = '', body, fetchOptions, operationOptions) =>
-      putJson(makeUri(baseUrl, endPoint), body,
+    putJson: (endpoint = '', body, fetchOptions, operationOptions) =>
+      putJson(makeUri(baseUrl, endpoint), body,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    patchJson: (endPoint = '', body, fetchOptions, operationOptions) =>
-      patchJson(makeUri(baseUrl, endPoint), body,
+    patchJson: (endpoint = '', body, fetchOptions, operationOptions) =>
+      patchJson(makeUri(baseUrl, endpoint), body,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    delete: (endPoint = '', fetchOptions, operationOptions) =>
-      delete_(makeUri(baseUrl, endPoint),
+    delete: (endpoint = '', fetchOptions, operationOptions) =>
+      delete_(makeUri(baseUrl, endpoint),
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),
