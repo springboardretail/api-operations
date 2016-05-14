@@ -60,6 +60,23 @@ describe('fetchStatus', () => {
       })
   })
 
+  it('parses json when application/json includes parameters', () => {
+    const responseData = { ok: true }
+    fetchMock.mock('https://contentTypeParams', {
+      status: 200,
+      headers: { 'Content-Type': 'application/json; foo="bar"' },
+      body: responseData,
+    })
+
+    return fetch('https://contentTypeParams')
+      .then(checkStatus)
+      .then(parseResponse)
+      .then(json => {
+        assert.deepEqual(json, responseData)
+        assertCalled('https://contentTypeParams')
+      })
+  })
+
   it('validates status with custom statusValidator', () => {
     const responseData = { ok: true }
     fetchMock.mock('https://customStatus', {

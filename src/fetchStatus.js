@@ -17,7 +17,9 @@ export function checkStatus(response, options = {}) {
 }
 
 export function parseResponse(response) {
-  if (response.headers.get('Content-Type') === 'application/json') { return response.json() }
+  if (/^application\/json(;.*)?/.test(response.headers.get('Content-Type'))) {
+    return response.json()
+  }
   return response.text()
 }
 
