@@ -231,7 +231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function parseResponse(response) {
-	  if (response.headers.get('Content-Type') === 'application/json') {
+	  if (/^application\/json(;.*)?/.test(response.headers.get('Content-Type'))) {
 	    return response.json();
 	  }
 	  return response.text();
