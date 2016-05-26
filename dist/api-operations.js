@@ -88,7 +88,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var fetchOptions = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 	  var operationOptions = arguments[2];
 
-	  return safeFetch(url, fetchOptions, operationOptions).then(_fetchStatus.parseResponse);
+	  return safeFetch(url, fetchOptions, operationOptions).then(function (res) {
+	    return operationOptions && operationOptions.dontParse ? res : (0, _fetchStatus.parseResponse)(res);
+	  });
 	}
 
 	function sendJson(url, body, fetchOptions, operationOptions) {
