@@ -10,6 +10,85 @@ const testAPISource = createApiSource('https://test', { credentials: 'same-origi
 describe('apiOperations', () => {
   afterEach(() => fetchMock.restore())
 
+  it('uses passed options', () => {
+    const responseData = { ok: true }
+    fetchMock.mock('https://test/credentials', jsonAPIResponse(responseData))
+
+    return get('https://test/credentials', { credentials: 'same-origin' })
+      .then(json => {
+        assert.deepEqual(json, responseData)
+        assert.equal(fetchMock.lastOptions('https://test/credentials').credentials, 'same-origin')
+      })
+  })
+
+  it('uses passed status validator', () => {
+    const responseData = { ok: true }
+    fetchMock.mock('https://test/customStatus', {
+      status: 1,
+      headers: { 'Content-Type': 'application/json' },
+      body: responseData,
+    })
+    const statusValidator = (status) => status > 0 && status < 100
+
+    return get('https://test/customStatus', {}, { statusValidator })
+      .then(json => {
+        assert.deepEqual(json, responseData)
+        assertCalled('https://test/customStatus')
+      })
+  })
+
+  it('uses passed error parser', () => {
+    fetchMock.mock('https://test/customError', jsonAPIStatusError(400))
+    const errorParser = (error, response) => {
+      const _error = new Error('Custom Error')
+      _error.name = response.statusText
+      return _error
+    }
+
+    return get('https://test/customError', {}, { errorParser })
+      .catch(error => {
+        assert.equal(error.message, 'Custom Error')
+        assert.equal(error.name, 'Bad Request')
+        assertCalled('https://test/customError')
+      })
+  })
+
+  it('returns raw result if operationOptions.dontParse = true', () => {
+    const responseData = { ok: true }
+    fetchMock.mock('https://test/dontParse', jsonAPIResponse(responseData))
+
+    return get('https://test/dontParse', {}, { dontParse: true })
+      .then(response => {
+        const {
+          url,
+          status,
+          statusText,
+          headers,
+          body,
+          bodyUsed,
+          ok,
+        } = response
+        assert.isDefined(url)
+        assert.isDefined(status)
+        assert.isDefined(statusText)
+        assert.isDefined(headers)
+        assert.isDefined(body)
+        assert.isDefined(bodyUsed)
+        assert.isDefined(ok)
+        assertCalled('https://test/dontParse')
+      })
+  })
+
+  it('throws on error', () => {
+    fetchMock.mock('https://test/error', jsonAPIStatusError(400))
+
+    return get('https://test/error')
+      .catch(error => {
+        assert.equal(error.message, 'Status 400')
+        assertCalled('https://test/error')
+      })
+  })
+
   describe('#get', () => {
     it('gets json', () => {
       const responseData = { ok: true }
@@ -112,60 +191,6 @@ describe('apiOperations', () => {
         })
     })
   })
-
-  it('uses passed options', () => {
-    const responseData = { ok: true }
-    fetchMock.mock('https://test/credentials', jsonAPIResponse(responseData))
-
-    return get('https://test/credentials', { credentials: 'same-origin' })
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assert.equal(fetchMock.lastOptions('https://test/credentials').credentials, 'same-origin')
-      })
-  })
-
-  it('uses passed status validator', () => {
-    const responseData = { ok: true }
-    fetchMock.mock('https://test/customStatus', {
-      status: 1,
-      headers: { 'Content-Type': 'application/json' },
-      body: responseData,
-    })
-    const statusValidator = (status) => status > 0 && status < 100
-
-    return get('https://test/customStatus', {}, { statusValidator })
-      .then(json => {
-        assert.deepEqual(json, responseData)
-        assertCalled('https://test/customStatus')
-      })
-  })
-
-  it('uses passed error parser', () => {
-    fetchMock.mock('https://test/customError', jsonAPIStatusError(400))
-    const errorParser = (error, response) => {
-      const _error = new Error('Custom Error')
-      _error.name = response.statusText
-      return _error
-    }
-
-    return get('https://test/customError', {}, { errorParser })
-      .catch(error => {
-        assert.equal(error.message, 'Custom Error')
-        assert.equal(error.name, 'Bad Request')
-        assertCalled('https://test/customError')
-      })
-  })
-
-  it('throws on error', () => {
-    fetchMock.mock('https://test/error', jsonAPIStatusError(400))
-
-    return get('https://test/error')
-      .catch(error => {
-        assert.equal(error.message, 'Status 400')
-        assertCalled('https://test/error')
-      })
-  })
-
 
   describe('#createApiSource', () => {
     describe('#get', () => {

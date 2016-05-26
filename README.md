@@ -288,30 +288,54 @@ this is the place to set headers, body, and other request data. Example:
 
 ### operationOptions
 An ```object``` that modifies the operations default behavior. The following key/values are supported:
+- dontParse ```Boolean```: If true the response object will be passed as is. Useful when you need
+  the response headers or metadata. **Default is false**.
+
+  ```js
+  // Maybe you just need the headers
+  get('http://myCoolApi.com/endpoint', {}, { dontParse: true })
+    .then(response => console.log(response.headers))
+
+  // Or maybe you also need the parsed body
+  return get('https://test/dontParse', {}, { dontParse: true })
+    .then(response =>
+      // response.json() returns a promise that resolves to the parsed body
+      // so we need to return the result when that promise resolves
+      Promise.all([response.headers, response.json()])
+    )
+    .then(([headers, json]) => console.log(headers.get('content-type'), json))
+
+  ```
+
 - statusValidator ```(response_status)```: A ```function``` that receives the response status code,
-implements some custom validation and returns ```true``` for valid statuses and ```false``` for invalid ones   
+implements some custom validation and returns ```true``` for valid statuses and ```false``` for invalid ones
+  ```js
+  // A custom status validator that passes on status 0 to 100 and fails on everything else
+  const statusValidator = (status) => status > 0 && status < 100
+
+  // Use it!
+  get('http://myCoolApi.com/endpoint', {}, { statusValidator })
+    .then(json => { console.log('got the json:', json) })
+  ```
+
 - errorParser ```(error, response)```: A ```function``` that receives the parsed rejected response (error),
 the raw response object and returns an error response
+  ```js
+  // A custom error parser that passes some custom data
+  const errorParser = (error, response) => {
+    const _error = new Error('Custom Error')
+    _error.name = response.statusText
+    _error.response = response
+    _error.body = error
+    _error.myExtraStuff = 'teach me how to dougie, teach me-teach me how to dougie~'
+    return _error
+  }
 
-```js
-// A custom status validator that passes on status 0 to 100 and fails on everything else
-const statusValidator = (status) => status > 0 && status < 100
-
-// A custom error parser that passes some custom data
-const errorParser = (error, response) => {
-  const _error = new Error('Custom Error')
-  _error.name = response.statusText
-  _error.response = response
-  _error.body = error
-  _error.myExtraStuff = 'teach me how to dougie, teach me-teach me how to dougie~'
-  return _error
-}
-
-// Use them!
-get('http://myCoolApi.com/endpoint', {}, { statusValidator, errorParser })
-  .then(json => { console.log('got the json:', json) })
-  .catch(error => { console.log('got an error:', error) })
-```
+  // Use it!
+  get('http://myCoolApi.com/endpoint', {}, { errorParser })
+    .then(json => { console.log('got the json:', json) })
+    .catch(error => { console.log('got an error:', error) })
+  ```
 
 [build-badge]: https://img.shields.io/travis/springboardretail/api-operations/master.svg?style=flat-square
 [build]: https://travis-ci.org/springboardretail/api-operations

@@ -16,7 +16,7 @@ function safeFetch(url, fetchOptions, operationOptions) {
 
 function fetchAndParse(url, fetchOptions = {}, operationOptions) {
   return safeFetch(url, fetchOptions, operationOptions)
-    .then(parseResponse)
+    .then(res => operationOptions && operationOptions.dontParse ? res : parseResponse(res))
 }
 
 
