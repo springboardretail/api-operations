@@ -3,7 +3,7 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-A lightweight (3kb minified) library for simple RESTful API operations that leverages ```fetch```.
+A lightweight (5kb minified) library for simple RESTful API operations that leverages ```fetch```.
 
 
 # Features
@@ -288,8 +288,8 @@ this is the place to set headers, body, and other request data. Example:
 
 ### operationOptions
 An ```object``` that modifies the operations default behavior. The following key/values are supported:
-- dontParse ```Boolean```: If true the response object will be passed as is. Useful when you need
-  the response headers or metadata. **Default is false**.
+- **dontParse** ```Boolean```: If true the response object will be passed as is. Useful when you need
+  the response headers or metadata. *Default is false*.
 
   ```js
   // Maybe you just need the headers
@@ -297,7 +297,7 @@ An ```object``` that modifies the operations default behavior. The following key
     .then(response => console.log(response.headers))
 
   // Or maybe you also need the parsed body
-  return get('https://test/dontParse', {}, { dontParse: true })
+  get('https://test/dontParse', {}, { dontParse: true })
     .then(response =>
       // response.json() returns a promise that resolves to the parsed body
       // so we need to return the result when that promise resolves
@@ -307,7 +307,7 @@ An ```object``` that modifies the operations default behavior. The following key
 
   ```
 
-- statusValidator ```(response_status)```: A ```function``` that receives the response status code,
+- **statusValidator** ```(response_status)```: A ```function``` that receives the response status code,
 implements some custom validation and returns ```true``` for valid statuses and ```false``` for invalid ones
   ```js
   // A custom status validator that passes on status 0 to 100 and fails on everything else
@@ -318,7 +318,7 @@ implements some custom validation and returns ```true``` for valid statuses and 
     .then(json => { console.log('got the json:', json) })
   ```
 
-- errorParser ```(error, response)```: A ```function``` that receives the parsed rejected response (error),
+- **errorParser** ```(error, response)```: A ```function``` that receives the parsed rejected response (error),
 the raw response object and returns an error response
   ```js
   // A custom error parser that passes some custom data
