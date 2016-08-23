@@ -24,11 +24,13 @@ export function parseResponse(response) {
 }
 
 function parseError(error, response, errorParser) {
+  /* eslint-disable no-underscore-dangle */
   const _error = new Error(error.message || response.statusText)
   _error.name = error.error || response.status
   _error.response = response
   _error.body = error
   return errorParser ? errorParser(error, response) : _error
+  /* eslint-enable no-underscore-dangle */
 }
 
 function returnIfFunctionExists(object) {

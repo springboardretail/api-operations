@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { assert } from 'chai'
 import fetchMock from 'fetch-mock'
 import { checkStatus, parseResponse } from '../fetchStatus'
@@ -80,11 +81,11 @@ describe('fetchStatus', () => {
   it('validates status with custom statusValidator', () => {
     const responseData = { ok: true }
     fetchMock.mock('https://customStatus', {
-      status: 1,
+      status: 505,
       headers: { 'Content-Type': 'application/json' },
       body: responseData,
     })
-    const statusValidator = (status) => status > 0 && status < 100
+    const statusValidator = (status) => status > 504 && status < 509
 
     return fetch('https://customStatus')
       .then(res => checkStatus(res, { statusValidator }))

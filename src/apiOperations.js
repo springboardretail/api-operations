@@ -1,5 +1,5 @@
-import { checkStatus, parseResponse } from './fetchStatus'
 import { stringify } from 'querystring'
+import { checkStatus, parseResponse } from './fetchStatus'
 
 const mergeOptions = (opts1, opts2) => Object.assign({}, opts1, opts2)
 
@@ -16,7 +16,7 @@ function safeFetch(url, fetchOptions, operationOptions) {
 
 function fetchAndParse(url, fetchOptions = {}, operationOptions) {
   return safeFetch(url, fetchOptions, operationOptions)
-    .then(res => operationOptions && operationOptions.dontParse ? res : parseResponse(res))
+    .then(res => (operationOptions && operationOptions.dontParse ? res : parseResponse(res)))
 }
 
 
@@ -39,8 +39,14 @@ export function get(url, fetchOptions, operationOptions) {
 
 export function getQuery(url, query, fetchOptions, operationOptions) {
   const hasQuery = uri => /\?/.test(uri)
+  const stripUndefined = queryObj =>
+    Object.keys(queryObj).reduce((acc, key) => {
+      if (queryObj[key] === undefined) { return acc }
+      return { ...acc, [key]: queryObj[key] }
+    }, {})
+
   return get(
-    `${url}${hasQuery(url) ? '&' : '?'}${stringify(query)}`,
+    `${url}${hasQuery(url) ? '&' : '?'}${stringify(stripUndefined(query))}`,
     fetchOptions,
     operationOptions
   )
@@ -63,6 +69,7 @@ export function patchJson(url, body, fetchOptions, operationOptions) {
 
 
 // using 'delete_' because 'delete' is a reserved keyword
+// eslint-disable-next-line no-underscore-dangle
 export function delete_(url, fetchOptions, operationOptions) {
   return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions)
 }

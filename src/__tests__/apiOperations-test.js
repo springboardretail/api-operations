@@ -1,8 +1,16 @@
+/* eslint-disable no-underscore-dangle */
 import { assert } from 'chai'
 import fetchMock from 'fetch-mock'
-import { get, getQuery, postJson,
-        putJson, patchJson, delete_, createApiSource } from '../apiOperations'
 import { jsonAPIResponse, jsonAPIStatusError, assertCalled } from './fetch-mock-helpers'
+import {
+  get,
+  getQuery,
+  postJson,
+  putJson,
+  patchJson,
+  delete_,
+  createApiSource,
+} from '../apiOperations'
 
 const testAPISource = createApiSource('https://test', { credentials: 'same-origin' })
 
@@ -12,7 +20,7 @@ describe('apiOperations', () => {
 
   it('uses passed options', () => {
     const responseData = { ok: true }
-    fetchMock.mock('https://test/credentials', jsonAPIResponse(responseData))
+    fetchMock.get('https://test/credentials', jsonAPIResponse(responseData))
 
     return get('https://test/credentials', { credentials: 'same-origin' })
       .then(json => {
@@ -23,12 +31,12 @@ describe('apiOperations', () => {
 
   it('uses passed status validator', () => {
     const responseData = { ok: true }
-    fetchMock.mock('https://test/customStatus', {
-      status: 1,
+    fetchMock.get('https://test/customStatus', {
+      status: 505,
       headers: { 'Content-Type': 'application/json' },
       body: responseData,
     })
-    const statusValidator = (status) => status > 0 && status < 100
+    const statusValidator = (status) => status > 504 && status < 509
 
     return get('https://test/customStatus', {}, { statusValidator })
       .then(json => {
@@ -38,7 +46,7 @@ describe('apiOperations', () => {
   })
 
   it('uses passed error parser', () => {
-    fetchMock.mock('https://test/customError', jsonAPIStatusError(400))
+    fetchMock.get('https://test/customError', jsonAPIStatusError(400))
     const errorParser = (error, response) => {
       const _error = new Error('Custom Error')
       _error.name = response.statusText
@@ -55,7 +63,7 @@ describe('apiOperations', () => {
 
   it('returns raw result if operationOptions.dontParse = true', () => {
     const responseData = { ok: true }
-    fetchMock.mock('https://test/dontParse', jsonAPIResponse(responseData))
+    fetchMock.get('https://test/dontParse', jsonAPIResponse(responseData))
 
     return get('https://test/dontParse', {}, { dontParse: true })
       .then(response => {
@@ -80,7 +88,7 @@ describe('apiOperations', () => {
   })
 
   it('throws on error', () => {
-    fetchMock.mock('https://test/error', jsonAPIStatusError(400))
+    fetchMock.get('https://test/error', jsonAPIStatusError(400))
 
     return get('https://test/error')
       .catch(error => {
@@ -92,7 +100,7 @@ describe('apiOperations', () => {
   describe('#get', () => {
     it('gets json', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/get', jsonAPIResponse(responseData))
+      fetchMock.get('https://test/get', jsonAPIResponse(responseData))
 
       return get('https://test/get')
         .then(json => {
@@ -105,7 +113,7 @@ describe('apiOperations', () => {
   describe('#getQuery', () => {
     it('gets json', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/getQuery?foo=bar&bar=baz', jsonAPIResponse(responseData))
+      fetchMock.get('https://test/getQuery?foo=bar&bar=baz', jsonAPIResponse(responseData))
       const query = {
         foo: 'bar',
         bar: 'baz',
@@ -120,7 +128,7 @@ describe('apiOperations', () => {
 
     it('appends query params to url query params', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/getQuery?a=b&foo=bar&bar=baz', jsonAPIResponse(responseData))
+      fetchMock.get('https://test/getQuery?a=b&foo=bar&bar=baz', jsonAPIResponse(responseData))
       const query = {
         foo: 'bar',
         bar: 'baz',
@@ -132,13 +140,30 @@ describe('apiOperations', () => {
           assertCalled('https://test/getQuery?a=b&foo=bar&bar=baz')
         })
     })
+
+    it('strips undefined values', () => {
+      const responseData = { ok: true }
+      fetchMock.get('https://test/getQuery?foo=bar&bar=baz', jsonAPIResponse(responseData))
+      const query = {
+        foo: 'bar',
+        bad: undefined,
+        bar: 'baz',
+        baz: undefined,
+      }
+
+      return getQuery('https://test/getQuery', query)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/getQuery?foo=bar&bar=baz')
+        })
+    })
   })
 
   describe('#post', () => {
     it('posts json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
-      fetchMock.mock('https://test/post', 'POST', jsonAPIResponse(responseData))
+      fetchMock.post('https://test/post', jsonAPIResponse(responseData))
 
       return postJson('https://test/post', sentData)
         .then(json => {
@@ -153,7 +178,7 @@ describe('apiOperations', () => {
     it('puts json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
-      fetchMock.mock('https://test/put', 'PUT', jsonAPIResponse(responseData))
+      fetchMock.put('https://test/put', jsonAPIResponse(responseData))
 
       return putJson('https://test/put', sentData)
         .then(json => {
@@ -168,7 +193,7 @@ describe('apiOperations', () => {
     it('patches json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
-      fetchMock.mock('https://test/patch', 'PATCH', jsonAPIResponse(responseData))
+      fetchMock.mock('https://test/patch', jsonAPIResponse(responseData), { method: 'PATCH' })
 
       return patchJson('https://test/patch', sentData)
         .then(json => {
@@ -182,7 +207,7 @@ describe('apiOperations', () => {
   describe('#delete_', () => {
     it('deletes json', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/delete', 'DELETE', jsonAPIResponse(responseData))
+      fetchMock.delete('https://test/delete', jsonAPIResponse(responseData))
 
       return delete_('https://test/delete')
         .then(json => {
@@ -196,7 +221,7 @@ describe('apiOperations', () => {
     describe('#get', () => {
       it('gets json', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return testAPISource.get('getEndpoint')
           .then(json => {
@@ -209,7 +234,7 @@ describe('apiOperations', () => {
     describe('#getQuery', () => {
       it('gets json', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getQueryEndpoint?foo=bar&bar=baz', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getQueryEndpoint?foo=bar&bar=baz', jsonAPIResponse(responseData))
         const query = {
           foo: 'bar',
           bar: 'baz',
@@ -227,7 +252,7 @@ describe('apiOperations', () => {
       it('posts json', () => {
         const responseData = { ok: true }
         const sentData = { sent: true }
-        fetchMock.mock('https://test/postEndpoint', 'POST', jsonAPIResponse(responseData))
+        fetchMock.post('https://test/postEndpoint', jsonAPIResponse(responseData))
 
         return testAPISource.postJson('postEndpoint', sentData)
           .then(json => {
@@ -242,7 +267,7 @@ describe('apiOperations', () => {
       it('puts json', () => {
         const responseData = { ok: true }
         const sentData = { sent: true }
-        fetchMock.mock('https://test/putEndpoint', 'PUT', jsonAPIResponse(responseData))
+        fetchMock.put('https://test/putEndpoint', jsonAPIResponse(responseData))
 
         return testAPISource.putJson('putEndpoint', sentData)
           .then(json => {
@@ -257,7 +282,7 @@ describe('apiOperations', () => {
       it('patches json', () => {
         const responseData = { ok: true }
         const sentData = { sent: true }
-        fetchMock.mock('https://test/patchEndpoint', 'PATCH', jsonAPIResponse(responseData))
+        fetchMock.mock('https://test/patchEndpoint', jsonAPIResponse(responseData), { method: 'PATCH' })
 
         return testAPISource.patchJson('patchEndpoint', sentData)
           .then(json => {
@@ -271,7 +296,7 @@ describe('apiOperations', () => {
     describe('#delete', () => {
       it('deletes json', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/deleteEndpoint', 'DELETE', jsonAPIResponse(responseData))
+        fetchMock.delete('https://test/deleteEndpoint', jsonAPIResponse(responseData))
 
         return testAPISource.delete('deleteEndpoint')
           .then(json => {
@@ -282,7 +307,7 @@ describe('apiOperations', () => {
     })
 
     it('throws on error', () => {
-      fetchMock.mock('https://test/errorEndpoint', jsonAPIStatusError(400))
+      fetchMock.get('https://test/errorEndpoint', jsonAPIStatusError(400))
 
       return testAPISource.get('errorEndpoint')
         .catch(error => {
@@ -293,7 +318,7 @@ describe('apiOperations', () => {
 
     it('hits baseUrl when no endpoint is given', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/', jsonAPIResponse(responseData))
+      fetchMock.get('https://test/', jsonAPIResponse(responseData))
 
       return testAPISource.get()
         .then(json => {
@@ -304,7 +329,7 @@ describe('apiOperations', () => {
 
     it('uses baseOptions', () => {
       const responseData = { ok: true }
-      fetchMock.mock('https://test/baseoptions', jsonAPIResponse(responseData))
+      fetchMock.get('https://test/baseoptions', jsonAPIResponse(responseData))
 
       return testAPISource.get('baseoptions')
         .then(json => {
@@ -317,7 +342,7 @@ describe('apiOperations', () => {
     describe('stardardize URL', () => {
       it('works for endpoint', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return testAPISource.get('/getEndpoint')
           .then(json => {
@@ -328,7 +353,7 @@ describe('apiOperations', () => {
 
       it('works for baseUrl', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return createApiSource('https://test/')
           .get('getEndpoint')
@@ -340,7 +365,7 @@ describe('apiOperations', () => {
 
       it('works for baseUrl and endpoint combined', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getEndpoint', jsonAPIResponse(responseData))
 
         return createApiSource('https://test/')
           .get('/getEndpoint')
@@ -352,7 +377,7 @@ describe('apiOperations', () => {
 
       it('throws on invalid endpoint', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/getEndpoint', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/getEndpoint', jsonAPIResponse(responseData))
         const invalidEndpoint = () => createApiSource('https://test/').get('https://invalidEndpoint')
 
         assert.throws(invalidEndpoint, /Endpoint seems invalid/)
@@ -360,7 +385,7 @@ describe('apiOperations', () => {
 
       it('allows numeric endpoint', () => {
         const responseData = { ok: true }
-        fetchMock.mock('https://test/123', jsonAPIResponse(responseData))
+        fetchMock.get('https://test/123', jsonAPIResponse(responseData))
         const endpoint = () => createApiSource('https://test/').get(123)
 
         assert.doesNotThrow(endpoint)
