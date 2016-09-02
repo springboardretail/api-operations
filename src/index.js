@@ -6,6 +6,7 @@ import {
   postJson,
   putJson,
   patchJson,
+  sendJson,
   delete_,
   createApiSource,
 } from './apiOperations'
@@ -16,6 +17,7 @@ export {
   postJson,
   putJson,
   patchJson,
+  sendJson,
   delete_,
   createApiSource,
 }

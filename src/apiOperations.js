@@ -1,8 +1,6 @@
 import { stringify } from 'querystring'
 import { checkStatus, parseResponse } from './fetchStatus'
 
-const mergeOptions = (opts1, opts2) => Object.assign({}, opts1, opts2)
-
 /**
  * fetch's promise will actually resolve successfully even if the server returns a > 400 reponse
  * see "Checking that the fetch was successful":
@@ -20,7 +18,7 @@ function fetchAndParse(url, fetchOptions = {}, operationOptions) {
 }
 
 
-function sendJson(url, body, fetchOptions, operationOptions) {
+export function sendJson(url, body, fetchOptions, operationOptions) {
   const sendOptions = {
     headers: {
       Accept: 'application/json',
@@ -28,12 +26,12 @@ function sendJson(url, body, fetchOptions, operationOptions) {
     },
     body: JSON.stringify(body),
   }
-  return fetchAndParse(url, mergeOptions(sendOptions, fetchOptions), operationOptions)
+  return fetchAndParse(url, { ...sendOptions, ...fetchOptions }, operationOptions)
 }
 
 
 export function get(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'get' }, fetchOptions), operationOptions)
+  return fetchAndParse(url, { ...{ method: 'get' }, ...fetchOptions }, operationOptions)
 }
 
 
@@ -54,24 +52,24 @@ export function getQuery(url, query, fetchOptions, operationOptions) {
 
 
 export function postJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'post' }, fetchOptions), operationOptions)
+  return sendJson(url, body, { ...{ method: 'post' }, ...fetchOptions }, operationOptions)
 }
 
 
 export function putJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'put' }, fetchOptions), operationOptions)
+  return sendJson(url, body, { ...{ method: 'put' }, ...fetchOptions }, operationOptions)
 }
 
 
 export function patchJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'patch' }, fetchOptions), operationOptions)
+  return sendJson(url, body, { ...{ method: 'patch' }, ...fetchOptions }, operationOptions)
 }
 
 
 // using 'delete_' because 'delete' is a reserved keyword
 // eslint-disable-next-line no-underscore-dangle
 export function delete_(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions)
+  return fetchAndParse(url, { ...{ method: 'delete' }, ...fetchOptions }, operationOptions)
 }
 
 
@@ -89,39 +87,45 @@ export function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions)
   return {
     get: (endpoint = '', fetchOptions, operationOptions) =>
       get(makeUri(baseUrl, endpoint),
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
 
     getQuery: (endpoint = '', query, fetchOptions, operationOptions) =>
       getQuery(makeUri(baseUrl, endpoint),
         query,
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
+      ),
+
+    sendJson: (endpoint = '', body, fetchOptions, operationOptions) =>
+      sendJson(makeUri(baseUrl, endpoint), body,
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
 
     postJson: (endpoint = '', body, fetchOptions, operationOptions) =>
       postJson(makeUri(baseUrl, endpoint), body,
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
 
     putJson: (endpoint = '', body, fetchOptions, operationOptions) =>
       putJson(makeUri(baseUrl, endpoint), body,
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
 
     patchJson: (endpoint = '', body, fetchOptions, operationOptions) =>
       patchJson(makeUri(baseUrl, endpoint), body,
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
 
     delete: (endpoint = '', fetchOptions, operationOptions) =>
       delete_(makeUri(baseUrl, endpoint),
-        mergeOptions(baseFetchOptions, fetchOptions),
-        mergeOptions(baseOperationOptions, operationOptions)
+        { ...baseFetchOptions, ...fetchOptions },
+        { ...baseOperationOptions, ...operationOptions }
       ),
   }
 }

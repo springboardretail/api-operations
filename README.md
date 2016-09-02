@@ -88,6 +88,7 @@ myAPISource.get()
   - [postJson](#postjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [putJson](#putjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [patchJson](#patchjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
+  - [sendJson](#sendJson-url-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [delete_](#delete_-url-fetchoptions-operationoptions) ```(url[, fetchOptions[, operationOptions]])```
   - [createApiSource](#createapisource-baseurl-basefetchoptions-baseoperationoptions) ```(baseUrl[, baseFetchOptions[, baseOperationOptions]])```
 
@@ -196,6 +197,24 @@ patchJson('http://myCoolApi.com/endpoint',
 
 ---
 
+### sendJson ```(url, body[, fetchOptions[, operationOptions]])```
+
+Generic method to send a JSON body, it doesn't set any HTTP method by itself
+so it's useful if you want to use a non-standard/non-supported method or want to extend functionality.
+returns a promise with a parsed result.
+*body gets converted to json automatically*. Example:
+
+```js
+sendJson('http://myCoolApi.com/endpoint',
+  { myData: 'omgBbqWtfKawaii' },
+  { method: 'SOME_METHOD', credentials: 'same-origin' },
+  { statusValidator, errorParser })
+  .then(json => { console.log('sent and got json:', json) })
+  .catch(error => { console.log('sent and got error:', error) })
+```
+
+---
+
 ### delete_ ```(url[, fetchOptions[, operationOptions]])```
 
 Sends a request using the 'delete' HTTP method and returns a promise with a parsed result. Example:
@@ -221,6 +240,7 @@ Returns an object with the following endpoint methods:
 - postJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - putJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - patchJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
+- sendJson ```(endPoint, body[, fetchOptions[, operationOptions]])```
 - delete ```(endPoint[, fetchOptions[, operationOptionsions]])```
 
 **All endpoint method options get merged with the base options created by ```createApiSource```**

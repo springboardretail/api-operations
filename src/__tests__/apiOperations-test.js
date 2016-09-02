@@ -5,6 +5,7 @@ import { jsonAPIResponse, jsonAPIStatusError, assertCalled } from './fetch-mock-
 import {
   get,
   getQuery,
+  sendJson,
   postJson,
   putJson,
   patchJson,
@@ -159,7 +160,37 @@ describe('apiOperations', () => {
     })
   })
 
-  describe('#post', () => {
+  describe('#sendJson', () => {
+    it('sends json', () => {
+      const responseData = { ok: true }
+      const sentData = { sent: true }
+      const fetchOptions = { method: 'SOME_METHOD' }
+      fetchMock.mock(
+        'https://test/send',
+        jsonAPIResponse(responseData),
+        { method: fetchOptions.method }
+      )
+
+      return sendJson('https://test/send', sentData, fetchOptions)
+        .then(json => {
+          assert.deepEqual(json, responseData)
+          assertCalled('https://test/send')
+          assert.deepEqual(
+            fetchMock.lastOptions('https://test/send'),
+            {
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              ...fetchOptions,
+              body: JSON.stringify(sentData),
+            }
+          )
+        })
+    })
+  })
+
+  describe('#postJson', () => {
     it('posts json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
@@ -174,7 +205,7 @@ describe('apiOperations', () => {
     })
   })
 
-  describe('#put', () => {
+  describe('#putJson', () => {
     it('puts json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
@@ -189,7 +220,7 @@ describe('apiOperations', () => {
     })
   })
 
-  describe('#patch', () => {
+  describe('#patchJson', () => {
     it('patches json', () => {
       const responseData = { ok: true }
       const sentData = { sent: true }
@@ -248,7 +279,38 @@ describe('apiOperations', () => {
       })
     })
 
-    describe('#post', () => {
+    describe('#sendJson', () => {
+      it('sends json', () => {
+        const responseData = { ok: true }
+        const sentData = { sent: true }
+        const fetchOptions = { method: 'SOME_METHOD' }
+        fetchMock.mock(
+          'https://test/sendEndpoint',
+          jsonAPIResponse(responseData),
+          { method: fetchOptions.method }
+        )
+
+        return testAPISource.sendJson('sendEndpoint', sentData, fetchOptions)
+          .then(json => {
+            assert.deepEqual(json, responseData)
+            assertCalled('https://test/sendEndpoint')
+            assert.deepEqual(
+              fetchMock.lastOptions('https://test/sendEndpoint'),
+              {
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(sentData),
+                ...fetchOptions,
+              }
+            )
+          })
+      })
+    })
+
+    describe('#postJson', () => {
       it('posts json', () => {
         const responseData = { ok: true }
         const sentData = { sent: true }
