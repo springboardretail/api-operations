@@ -88,7 +88,7 @@ myAPISource.get()
   - [postJson](#postjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [putJson](#putjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [patchJson](#patchjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
-  - [sendJson](#sendJson-url-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
+  - [sendJson](#sendjson-url-body-fetchoptions-operationoptions) ```(url, body[, fetchOptions[, operationOptions]])```
   - [delete_](#delete_-url-fetchoptions-operationoptions) ```(url[, fetchOptions[, operationOptions]])```
   - [createApiSource](#createapisource-baseurl-basefetchoptions-baseoperationoptions) ```(baseUrl[, baseFetchOptions[, baseOperationOptions]])```
 

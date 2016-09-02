@@ -84,7 +84,7 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.patchJson = exports.putJson = exports.postJson = exports.getQuery = exports.get = undefined;
+exports.patchJson = exports.putJson = exports.postJson = exports.getQuery = exports.get = exports.sendJson = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -96,10 +96,6 @@ var _querystring = __webpack_require__(4);
 var _fetchStatus = __webpack_require__(1);
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var mergeOptions = function mergeOptions(opts1, opts2) {
-  return Object.assign({}, opts1, opts2);
-};
 
 /**
  * fetch's promise will actually resolve successfully even if the server returns a > 400 reponse
@@ -121,7 +117,7 @@ function fetchAndParse(url) {
   });
 }
 
-function sendJson(url, body, fetchOptions, operationOptions) {
+function _sendJson(url, body, fetchOptions, operationOptions) {
   var sendOptions = {
     headers: {
       Accept: 'application/json',
@@ -129,11 +125,12 @@ function sendJson(url, body, fetchOptions, operationOptions) {
     },
     body: JSON.stringify(body)
   };
-  return fetchAndParse(url, mergeOptions(sendOptions, fetchOptions), operationOptions);
+  return fetchAndParse(url, _extends({}, sendOptions, fetchOptions), operationOptions);
 }
 
+exports.sendJson = _sendJson;
 function _get(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'get' }, fetchOptions), operationOptions);
+  return fetchAndParse(url, _extends({ method: 'get' }, fetchOptions), operationOptions);
 }
 
 exports.get = _get;
@@ -156,24 +153,24 @@ function _getQuery(url, query, fetchOptions, operationOptions) {
 
 exports.getQuery = _getQuery;
 function _postJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'post' }, fetchOptions), operationOptions);
+  return _sendJson(url, body, _extends({ method: 'post' }, fetchOptions), operationOptions);
 }
 
 exports.postJson = _postJson;
 function _putJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'put' }, fetchOptions), operationOptions);
+  return _sendJson(url, body, _extends({ method: 'put' }, fetchOptions), operationOptions);
 }
 
 exports.putJson = _putJson;
 function _patchJson(url, body, fetchOptions, operationOptions) {
-  return sendJson(url, body, mergeOptions({ method: 'patch' }, fetchOptions), operationOptions);
+  return _sendJson(url, body, _extends({ method: 'patch' }, fetchOptions), operationOptions);
 }
 
 // using 'delete_' because 'delete' is a reserved keyword
 // eslint-disable-next-line no-underscore-dangle
 exports.patchJson = _patchJson;
 function delete_(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions);
+  return fetchAndParse(url, _extends({ method: 'delete' }, fetchOptions), operationOptions);
 }
 
 function makeUri(baseUrl, endpoint) {
@@ -193,7 +190,7 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
       var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
       var fetchOptions = arguments[1];
       var operationOptions = arguments[2];
-      return _get(makeUri(baseUrl, endpoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return _get(makeUri(baseUrl, endpoint), _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     },
 
     getQuery: function getQuery() {
@@ -201,7 +198,15 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
       var query = arguments[1];
       var fetchOptions = arguments[2];
       var operationOptions = arguments[3];
-      return _getQuery(makeUri(baseUrl, endpoint), query, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return _getQuery(makeUri(baseUrl, endpoint), query, _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
+    },
+
+    sendJson: function sendJson() {
+      var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+      var body = arguments[1];
+      var fetchOptions = arguments[2];
+      var operationOptions = arguments[3];
+      return _sendJson(makeUri(baseUrl, endpoint), body, _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     },
 
     postJson: function postJson() {
@@ -209,7 +214,7 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
       var body = arguments[1];
       var fetchOptions = arguments[2];
       var operationOptions = arguments[3];
-      return _postJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return _postJson(makeUri(baseUrl, endpoint), body, _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     },
 
     putJson: function putJson() {
@@ -217,7 +222,7 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
       var body = arguments[1];
       var fetchOptions = arguments[2];
       var operationOptions = arguments[3];
-      return _putJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return _putJson(makeUri(baseUrl, endpoint), body, _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     },
 
     patchJson: function patchJson() {
@@ -225,14 +230,14 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
       var body = arguments[1];
       var fetchOptions = arguments[2];
       var operationOptions = arguments[3];
-      return _patchJson(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return _patchJson(makeUri(baseUrl, endpoint), body, _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     },
 
     delete: function _delete() {
       var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
       var fetchOptions = arguments[1];
       var operationOptions = arguments[2];
-      return delete_(makeUri(baseUrl, endpoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      return delete_(makeUri(baseUrl, endpoint), _extends({}, baseFetchOptions, fetchOptions), _extends({}, baseOperationOptions, operationOptions));
     }
   };
 }
@@ -502,7 +507,7 @@ exports.encode = exports.stringify = __webpack_require__(3);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createApiSource = exports.delete_ = exports.patchJson = exports.putJson = exports.postJson = exports.getQuery = exports.get = undefined;
+exports.createApiSource = exports.delete_ = exports.sendJson = exports.patchJson = exports.putJson = exports.postJson = exports.getQuery = exports.get = undefined;
 
 var _apiOperations = __webpack_require__(0);
 
@@ -511,6 +516,7 @@ exports.getQuery = _apiOperations.getQuery;
 exports.postJson = _apiOperations.postJson;
 exports.putJson = _apiOperations.putJson;
 exports.patchJson = _apiOperations.patchJson;
+exports.sendJson = _apiOperations.sendJson;
 exports.delete_ = _apiOperations.delete_;
 exports.createApiSource = _apiOperations.createApiSource; // just an exporter for the modules
 // here we can control the default external API of the package
