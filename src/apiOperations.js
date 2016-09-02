@@ -70,8 +70,8 @@ export function patchJson(url, body, fetchOptions, operationOptions) {
 
 // using 'delete_' because 'delete' is a reserved keyword
 // eslint-disable-next-line no-underscore-dangle
-export function delete_(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions)
+export function delete_(url, body, fetchOptions, operationOptions) {
+  return sendJson(url, body, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions)
 }
 
 
@@ -118,8 +118,8 @@ export function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions)
         mergeOptions(baseOperationOptions, operationOptions)
       ),
 
-    delete: (endpoint = '', fetchOptions, operationOptions) =>
-      delete_(makeUri(baseUrl, endpoint),
+    delete: (endpoint = '', body, fetchOptions, operationOptions) =>
+      delete_(makeUri(baseUrl, endpoint), body,
         mergeOptions(baseFetchOptions, fetchOptions),
         mergeOptions(baseOperationOptions, operationOptions)
       ),

@@ -91,9 +91,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 exports.delete_ = delete_;
 exports.createApiSource = createApiSource;
 
-var _fetchStatus = __webpack_require__(1);
-
 var _querystring = __webpack_require__(4);
+
+var _fetchStatus = __webpack_require__(1);
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -170,9 +170,10 @@ function _patchJson(url, body, fetchOptions, operationOptions) {
 }
 
 // using 'delete_' because 'delete' is a reserved keyword
+// eslint-disable-next-line no-underscore-dangle
 exports.patchJson = _patchJson;
-function delete_(url, fetchOptions, operationOptions) {
-  return fetchAndParse(url, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions);
+function delete_(url, body, fetchOptions, operationOptions) {
+  return sendJson(url, body, mergeOptions({ method: 'delete' }, fetchOptions), operationOptions);
 }
 
 function makeUri(baseUrl, endpoint) {
@@ -229,9 +230,10 @@ function createApiSource(baseUrl, baseFetchOptions, baseOperationOptions) {
 
     delete: function _delete() {
       var endpoint = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-      var fetchOptions = arguments[1];
-      var operationOptions = arguments[2];
-      return delete_(makeUri(baseUrl, endpoint), mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
+      var body = arguments[1];
+      var fetchOptions = arguments[2];
+      var operationOptions = arguments[3];
+      return delete_(makeUri(baseUrl, endpoint), body, mergeOptions(baseFetchOptions, fetchOptions), mergeOptions(baseOperationOptions, operationOptions));
     }
   };
 }
@@ -278,11 +280,13 @@ function parseResponse(response) {
 }
 
 function parseError(error, response, errorParser) {
+  /* eslint-disable no-underscore-dangle */
   var _error = new Error(error.message || response.statusText);
   _error.name = error.error || response.status;
   _error.response = response;
   _error.body = error;
   return errorParser ? errorParser(error, response) : _error;
+  /* eslint-enable no-underscore-dangle */
 }
 
 function returnIfFunctionExists(object) {
@@ -497,7 +501,7 @@ exports.encode = exports.stringify = __webpack_require__(3);
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-        value: true
+  value: true
 });
 exports.createApiSource = exports.delete_ = exports.patchJson = exports.putJson = exports.postJson = exports.getQuery = exports.get = undefined;
 
