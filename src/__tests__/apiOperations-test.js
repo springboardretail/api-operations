@@ -207,12 +207,14 @@ describe('apiOperations', () => {
   describe('#delete_', () => {
     it('deletes json', () => {
       const responseData = { ok: true }
+      const sentData = { sent: true }
       fetchMock.delete('https://test/delete', jsonAPIResponse(responseData))
 
-      return delete_('https://test/delete')
+      return delete_('https://test/delete', sentData)
         .then(json => {
           assert.deepEqual(json, responseData)
           assertCalled('https://test/delete')
+          assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/delete').body), sentData)
         })
     })
   })
@@ -294,15 +296,31 @@ describe('apiOperations', () => {
     })
 
     describe('#delete', () => {
-      it('deletes json', () => {
-        const responseData = { ok: true }
-        fetchMock.delete('https://test/deleteEndpoint', jsonAPIResponse(responseData))
+      describe('when body is present', () => {
+        it('sends a delete request with json', () => {
+          const responseData = { ok: true }
+          const sentData = { sent: true }
+          fetchMock.mock('https://test/deleteEndpoint', jsonAPIResponse(responseData))
 
-        return testAPISource.delete('deleteEndpoint')
-          .then(json => {
-            assert.deepEqual(json, responseData)
-            assertCalled('https://test/deleteEndpoint')
-          })
+          return testAPISource.delete('deleteEndpoint', sentData)
+            .then(json => {
+              assert.deepEqual(json, responseData)
+              assertCalled('https://test/deleteEndpoint')
+              assert.deepEqual(JSON.parse(fetchMock.lastOptions('https://test/deleteEndpoint').body), sentData)
+            })
+        })
+      })
+      describe('when body is not present', () => {
+        it('sends a delete request', () => {
+          const responseData = { ok: true }
+          fetchMock.mock('https://test/deleteEndpoint', jsonAPIResponse(responseData))
+
+          return testAPISource.delete('deleteEndpoint')
+            .then(json => {
+              assert.deepEqual(json, responseData)
+              assertCalled('https://test/deleteEndpoint')
+            })
+        })
       })
     })
 
